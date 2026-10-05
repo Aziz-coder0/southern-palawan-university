@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Track application{% endblock %}
+{% block public_content %}
+<div class="public-wrap"><a class="public-brand" href="{{ url_for('login') }}"><span class="brand-mark"><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i></span> ISMS</a>
+  <div class="public-card"><div class="eyebrow">ADMISSIONS</div><h1>Track your application</h1><p class="muted">Enter the reference number and email used when you applied.</p>
+    <form method="post" class="form-stack"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><label>Reference number<input name="reference" placeholder="APP-XXXXXXXX" required></label><label>Email address<input type="email" name="email" required></label><button class="button primary full" type="submit">Check status <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button></form>
+    {% if applicant %}<div class="track-result"><div class="eyebrow">{{ applicant.reference }}</div><h2>{{ applicant.full_name }}</h2><p>{{ applicant.program }}</p><span class="pill {{ applicant.status }}">{{ applicant.status|replace('_',' ')|title }}</span>
+      <div class="requirement-summary">{{ applicant.requirements|selectattr('received')|list|length }} of {{ applicant.requirements|length }} requirements received</div>
+      <div class="track-academic"><strong>Academic record</strong><span>{{ applicant.academic_review.status|replace('_',' ')|title if applicant.academic_review else 'Not submitted' }}</span></div>
+      {% if applicant.academic_review and applicant.academic_review.status == 'needs_correction' %}<p class="track-review-note">{{ applicant.academic_review.note }}</p>{% endif %}
+      {% if applicant.status != 'accepted' and not applicant.student and applicant.profile %}<a class="button subtle" href="{{ url_for('applicant_academic_records') }}">{{ 'Update' if applicant.academic_document else 'Submit' }} academic records <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>{% endif %}
+    </div>{% endif %}
+    <div class="auth-links"><a href="{{ url_for('apply') }}">Start an application</a><a href="{{ url_for('login') }}">Staff sign in</a></div>
+  </div>
+</div>
+{% endblock %}

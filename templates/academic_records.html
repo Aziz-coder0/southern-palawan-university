@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Academic records{% endblock %}
+{% block public_content %}
+<div class="public-wrap application-wrap">
+  <a class="public-brand" href="{{ url_for('track') }}"><span class="brand-mark"><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i></span> ISMS</a>
+  <div class="public-card application-card">
+    <div class="eyebrow">{{ applicant.reference }} · ACADEMIC RECORD</div>
+    <h1>Submit your school records</h1>
+    <p class="muted">Enter the final subject grades from your school record and upload a clear digital copy. Admissions will compare your entry with the submitted document.</p>
+    {% if applicant.academic_review and applicant.academic_review.status == 'needs_correction' %}<div class="application-note correction-note"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><span><strong>Correction requested:</strong> {{ applicant.academic_review.note }}</span></div>{% endif %}
+    <form method="post" enctype="multipart/form-data" class="form-grid application-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <input type="hidden" name="applicant_type" value="{{ applicant.profile.applicant_type }}">
+      {% include '_academic_fields.html' %}
+      <div class="wide form-actions"><a class="button subtle" href="{{ url_for('track') }}">Back to status</a><button class="button primary" type="submit">Submit records for review <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button></div>
+    </form>
+  </div>
+</div>
+{% endblock %}

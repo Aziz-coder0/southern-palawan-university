@@ -1,0 +1,22 @@
+<div class="form-section wide"><span>05</span><div><strong>Academic record</strong><small>Enter final subject grades and submit a copy of your school record.</small></div></div>
+<div class="wide academic-grades" data-academic-grades>
+  <div class="application-note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><span>For first-year applicants, enter the final subject grades shown on your record for Grades 8, 9, 10, and 11. Add a row for every subject. Transferees and returning students may submit their latest transcript without these grade rows.</span></div>
+  {% for level in [8, 9, 10, 11] %}
+  <div class="academic-grade-level">
+    <div class="academic-grade-head"><strong>Grade {{ level }}</strong><button type="button" class="text-link" data-add-grade="{{ level }}"><i class="fa-solid fa-plus" aria-hidden="true"></i> Add subject</button></div>
+    <div data-grade-rows="{{ level }}">
+      {% set rows = applicant.academic_grades|selectattr('grade_level', 'equalto', level)|list if applicant else [] %}
+      {% for row in rows %}
+      <div class="academic-grade-row"><label>Subject<input name="subject_{{ level }}[]" value="{{ row.subject }}" maxlength="120" placeholder="e.g. Mathematics"></label><label>Final grade<input name="grade_{{ level }}[]" type="number" min="0" max="100" step="0.01" value="{{ row.final_grade }}" placeholder="0–100"></label>{% if not loop.first %}<button type="button" class="grade-remove" data-remove-grade aria-label="Remove subject"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>{% endif %}</div>
+      {% else %}
+      <div class="academic-grade-row"><label>Subject<input name="subject_{{ level }}[]" maxlength="120" placeholder="e.g. Mathematics"></label><label>Final grade<input name="grade_{{ level }}[]" type="number" min="0" max="100" step="0.01" placeholder="0–100"></label></div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+<label class="wide academic-upload">Certified school record or transcript <span class="optional">PDF, JPG, or PNG · maximum 2 MB</span>
+  <input name="academic_document" type="file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" {% if not applicant or not applicant.academic_document %}required{% endif %}>
+  {% if applicant and applicant.academic_document %}<small>Current file: {{ applicant.academic_document.filename }} ({{ (applicant.academic_document.size_bytes / 1024)|round|int }} KB). Choose a new file only to replace it.</small>{% endif %}
+</label>
+<template id="grade-row-template"><div class="academic-grade-row"><label>Subject<input name="subject___LEVEL__[]" maxlength="120" placeholder="e.g. Mathematics"></label><label>Final grade<input name="grade___LEVEL__[]" type="number" min="0" max="100" step="0.01" placeholder="0–100"></label><button type="button" class="grade-remove" data-remove-grade aria-label="Remove subject"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div></template>

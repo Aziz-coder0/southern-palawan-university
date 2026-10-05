@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Apply for admission{% endblock %}
+{% block public_content %}
+<div class="public-wrap application-wrap">
+  <a class="public-brand" href="{{ url_for('login') }}"><span class="brand-mark"><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i></span> ISMS</a>
+  <div class="public-card application-card">
+    <div class="eyebrow">ONLINE ADMISSIONS</div>
+    <h1>Start your application</h1>
+    <p class="muted">Complete the details below. After submitting, you will receive a reference number to track your application.</p>
+    <form method="post" enctype="multipart/form-data" class="form-grid application-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      {% set applicant = none %}
+      {% include '_application_fields.html' %}
+      {% include '_academic_fields.html' %}
+      <div class="application-note wide"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><span>The uploaded record is for ISMS admissions review. Staff may still request an official certified copy before a final decision.</span></div>
+      <label class="wide consent-line"><input type="checkbox" name="consent" value="yes" required><span>I understand that admissions staff will use these details to review my application, and I can contact the school to request a correction.</span></label>
+      <div class="wide form-actions"><a class="button subtle" href="{{ url_for('login') }}">Back to sign in</a><button class="button primary" type="submit">Submit application <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button></div>
+    </form>
+  </div>
+  <p class="public-note">Your information is used to process your admission application.</p>
+</div>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<div class="page-heading"><div><div class="eyebrow">INBOX</div><h1>Notifications</h1><p>Updates that need your attention across the workspace.</p></div>{% if unread_notifications %}<form method="post" action="{{ url_for('read_all_notifications') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="button subtle" type="submit"><i class="fa-solid fa-check-double" aria-hidden="true"></i> Mark all read</button></form>{% endif %}</div>
+<section class="panel notification-page-list">
+  {% for item in notifications %}
+  <form method="post" action="{{ url_for('open_notification', notification_id=item.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit" class="notification-item {% if not item.read_at %}unread{% endif %}"><span class="notification-item-icon {{ item.kind }}"><i class="fa-solid {{ 'fa-circle-check' if item.kind == 'success' else 'fa-triangle-exclamation' if item.kind == 'warning' else 'fa-bell' }}" aria-hidden="true"></i></span><span class="notification-item-copy"><strong>{{ item.title }}</strong><span>{{ item.message }}</span><small>{{ item.created_at.strftime('%B %d, %Y · %I:%M %p') }}</small></span>{% if not item.read_at %}<span class="notification-unread-dot" aria-label="Unread"></span>{% endif %}</button></form>
+  {% else %}<div class="notification-empty large"><i class="fa-solid fa-inbox" aria-hidden="true"></i><strong>No notifications yet</strong><span>When something changes in your workspace, you'll see it here.</span></div>{% endfor %}
+</section>
+{% endblock %}

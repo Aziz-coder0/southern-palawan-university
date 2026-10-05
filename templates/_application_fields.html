@@ -1,0 +1,30 @@
+{% set profile = applicant.profile if applicant else none %}
+<div class="form-section wide"><span>01</span><div><strong>Application details</strong><small>Choose the path that fits your admission request.</small></div></div>
+<label class="wide">Application type
+  <select name="applicant_type" required>
+    <option value="">Select application type</option>
+    <option value="freshman" {% if profile and profile.applicant_type == 'freshman' %}selected{% endif %}>First year / freshman</option>
+    <option value="transferee" {% if profile and profile.applicant_type == 'transferee' %}selected{% endif %}>Transferee</option>
+    <option value="returnee" {% if profile and profile.applicant_type == 'returnee' %}selected{% endif %}>Returning student</option>
+  </select>
+</label>
+<label>First name<input name="first_name" value="{{ applicant.first_name if applicant else '' }}" autocomplete="given-name" maxlength="80" required></label>
+<label>Middle name <span class="optional">Optional</span><input name="middle_name" value="{{ profile.middle_name if profile else '' }}" autocomplete="additional-name" maxlength="80"></label>
+<label>Last name<input name="last_name" value="{{ applicant.last_name if applicant else '' }}" autocomplete="family-name" maxlength="80" required></label>
+<label>Date of birth<input name="birth_date" type="date" value="{{ profile.birth_date.isoformat() if profile and profile.birth_date else '' }}" max="{{ today.isoformat() }}" required></label>
+
+<div class="form-section wide"><span>02</span><div><strong>Contact information</strong><small>Admissions will use these details to contact you.</small></div></div>
+<label>Email address<input name="email" type="email" value="{{ applicant.email if applicant else '' }}" autocomplete="email" maxlength="255" required></label>
+<label>Mobile number<input name="phone" type="tel" inputmode="tel" value="{{ applicant.phone if applicant else '' }}" autocomplete="tel" maxlength="40" required></label>
+<label class="wide">Home address<textarea name="home_address" rows="2" autocomplete="street-address" maxlength="300" required>{{ profile.home_address if profile else '' }}</textarea></label>
+
+<div class="form-section wide"><span>03</span><div><strong>Academic background</strong><small>Tell us where you last studied and your preferred program.</small></div></div>
+<label class="wide">Previous school attended<input name="previous_school" value="{{ profile.previous_school if profile else '' }}" maxlength="180" required></label>
+<label>Last academic year <span class="optional">Optional</span><input name="last_school_year" value="{{ profile.last_school_year if profile else '' }}" maxlength="20" placeholder="e.g. 2025-2026"></label>
+<label>Program of interest<input name="program" value="{{ applicant.program if applicant else '' }}" maxlength="120" placeholder="e.g. BS Computer Science" required></label>
+
+<div class="form-section wide"><span>04</span><div><strong>Emergency contact</strong><small>Someone the school can reach if needed.</small></div></div>
+<label class="wide">Contact name<input name="emergency_name" value="{{ profile.emergency_name if profile else '' }}" maxlength="160" required></label>
+<label>Relationship<input name="emergency_relationship" value="{{ profile.emergency_relationship if profile else '' }}" maxlength="60" placeholder="e.g. Parent, sibling" required></label>
+<label>Contact number<input name="emergency_phone" type="tel" inputmode="tel" value="{{ profile.emergency_phone if profile else '' }}" maxlength="40" required></label>
+<label class="wide">Additional information <span class="optional">Optional</span><textarea name="notes" rows="3" maxlength="2000" placeholder="Anything admissions should know about your application">{{ applicant.notes if applicant else '' }}</textarea></label>

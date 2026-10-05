@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Sign in{% endblock %}
+{% block public_content %}
+<div class="auth-layout">
+  <div class="auth-panel">
+    <div class="auth-card">
+      <div class="auth-brand"><span class="brand-mark"><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i></span><span><strong>ISMS</strong><small>{{ app_name }}</small></span></div>
+      <div class="auth-heading"><div class="eyebrow">SECURE WORKSPACE</div><h1>Welcome back</h1><p>Sign in with your school account to continue.</p></div>
+      <form method="post" class="form-stack">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label for="login-email">Email address</label><input id="login-email" name="email" type="email" autocomplete="username" maxlength="255" placeholder="name@school.edu" required autofocus>
+        <div class="password-label"><label for="login-password">Password</label></div>
+        <div class="password-field"><input id="login-password" name="password" type="password" autocomplete="current-password" required><button type="button" class="password-toggle" data-password-toggle aria-label="Show password" aria-pressed="false"><i class="fa-solid fa-eye" aria-hidden="true"></i></button></div>
+        <button class="button primary full auth-submit" type="submit">Sign in <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+      </form>
+      <div class="auth-links"><a href="{{ url_for('apply') }}">Apply for admission</a><a href="{{ url_for('track') }}">Track an application</a></div>
+    </div>
+    <p class="auth-help">Access to staff accounts is managed by your school administrator.</p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,4 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}<div class="empty-state large"><div class="empty-icon">!</div><h1>{{ title }}</h1><p>{{ message }}</p><a class="button primary" href="{{ url_for('dashboard') }}">Return to overview</a></div>{% endblock %}
+{% block public_content %}<div class="empty-state large"><div class="empty-icon">!</div><h1>{{ title }}</h1><p>{{ message }}</p><a class="button primary" href="{{ url_for('login') }}">Return to sign in</a></div>{% endblock %}

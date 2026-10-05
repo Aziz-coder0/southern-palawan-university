@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Admissions{% endblock %}
+{% block content %}
+<div class="page-heading"><div><div class="eyebrow">ADMISSIONS</div><h1>Applications</h1><p>Review applicants, requirements, and decisions.</p></div><button class="button primary" data-open-modal="new-applicant"><i class="fa-solid fa-plus" aria-hidden="true"></i> New application</button></div>
+<div class="panel">
+  <div class="panel-toolbar"><form class="search-form" method="get"><input name="q" value="{{ search }}" placeholder="Search name or reference" aria-label="Search applications"><button type="submit">Search</button></form><span class="count-label">{{ applicants|length }} records</span></div>
+  <div class="table-wrap"><table><thead><tr><th>Reference</th><th>Applicant</th><th>Program</th><th>Submitted</th><th>Status</th><th></th></tr></thead><tbody>
+    {% for item in applicants %}<tr><td class="mono">{{ item.reference }}</td><td><strong>{{ item.full_name }}</strong><small>{{ item.email }}</small></td><td>{{ item.program }}</td><td>{{ item.created_at.strftime('%b %d, %Y') }}</td><td><span class="pill {{ item.status }}">{{ item.status|replace('_',' ')|title }}</span></td><td><a class="row-link" href="{{ url_for('application_detail', applicant_id=item.id) }}">Open <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></td></tr>
+    {% else %}<tr><td colspan="6" class="table-empty">No applications found.</td></tr>{% endfor %}
+  </tbody></table></div>
+</div>
+<dialog id="new-applicant" class="modal application-modal"><div class="modal-head"><div><div class="eyebrow">ADMISSIONS</div><h2>New application</h2></div><button class="icon-button" data-close-modal aria-label="Close"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div>
+  <form action="{{ url_for('create_application') }}" method="post" enctype="multipart/form-data" class="form-grid application-form"><input type="hidden" name="csrf_token" value="{{ csrf_token }}">{% set applicant = none %}{% include '_application_fields.html' %}{% include '_academic_fields.html' %}<div class="wide form-actions"><button class="button subtle" type="button" data-close-modal>Cancel</button><button class="button primary" type="submit">Create application</button></div></form>
+</dialog>
+{% endblock %}

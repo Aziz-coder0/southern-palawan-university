@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Overview{% endblock %}
+
+{% macro metric(label, value, note, icon, href, money=false) %}
+<a class="metric-card" href="{{ href }}"><span class="metric-icon"><i class="fa-solid {{ icon }}" aria-hidden="true"></i></span><span class="metric-label">{{ label }}</span><strong{% if money %} class="money-value"{% endif %}>{{ value }}</strong><small>{{ note }}</small></a>
+{% endmacro %}
+
+{% macro quick(title, note, icon, href) %}
+<a href="{{ href }}"><span class="quick-icon"><i class="fa-solid {{ icon }}" aria-hidden="true"></i></span><span><strong>{{ title }}</strong><small>{{ note }}</small></span><span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span></a>
+{% endmacro %}
+
+{% block content %}
+<div class="page-heading">
+  <div><div class="eyebrow">WORKSPACE OVERVIEW</div><h1>Good day, {{ current_user.full_name.split(' ')[0] }}.</h1><p>Here is a current view of your school operations.</p></div>
+  <span class="date-chip">{{ today.strftime('%B %d, %Y') }}</span>
+</div>
+
+<div class="metric-grid{% if current_user.role in ['academic', 'teacher'] %} three{% endif %}">
+  {% if current_user.role == 'admin' %}
+    {{ metric('Applications', metrics.applicants, metrics.pending ~ ' awaiting review', 'fa-clipboard-list', url_for('applications')) }}
+    {{ metric('Students', metrics.students, 'Central student records', 'fa-user-graduate', url_for('students')) }}
+    {{ metric('Sections', metrics.sections, 'Scheduled learning groups', 'fa-chalkboard-user', url_for('sections')) }}
+    {{ metric('Employees', metrics.employees, 'Faculty and staff records', 'fa-users', url_for('employees')) }}
+  {% elif current_user.role == 'admissions' %}
+    {{ metric('Applications', metrics.applicants, 'All submissions', 'fa-clipboard-list', url_for('applications')) }}
+    {{ metric('Awaiting review', metrics.pending, 'Submitted or under review', 'fa-hourglass-half', url_for('applications')) }}
+    {{ metric('Accepted', metrics.accepted, 'Approved applicants', 'fa-circle-check', url_for('applications')) }}
+    {{ metric('Students', metrics.students, 'Converted student records', 'fa-user-graduate', url_for('students')) }}
+  {% elif current_user.role == 'finance' %}
+    {{ metric('Students', metrics.students, 'Student accounts', 'fa-user-graduate', url_for('students')) }}
+    {{ metric('Total billed', '₱{:,.2f}'.format(billed), 'Active charges', 'fa-file-invoice-dollar', url_for('finance'), true) }}
+    {{ metric('Collected', '₱{:,.2f}'.format(collected), 'Posted payments', 'fa-wallet', url_for('finance'), true) }}
+    {{ metric('Outstanding', '₱{:,.2f}'.format(billed - collected), 'Current balance', 'fa-chart-line', url_for('finance'), true) }}
+  {% elif current_user.role == 'hr' %}
+    {{ metric('Employees', metrics.employees, 'Faculty and staff records', 'fa-users', url_for('employees')) }}
+    {{ metric('Active staff', metrics.active_employees, 'Current employees', 'fa-user-check', url_for('employees')) }}
+    {{ metric('Present today', metrics.staff_present_today, 'Attendance marked present', 'fa-calendar-check', url_for('employees')) }}
+    {{ metric('Teaching sections', metrics.sections, 'Current section records', 'fa-chalkboard-user', url_for('employees')) }}
+  {% elif current_user.role == 'academic' %}
+    {{ metric('Students', metrics.students, 'Central student records', 'fa-user-graduate', url_for('students')) }}
+    {{ metric('Sections', metrics.sections, 'Scheduled learning groups', 'fa-chalkboard-user', url_for('sections')) }}
+    {{ metric('Faculty and staff', metrics.employees, 'Teaching assignments', 'fa-users', url_for('employees')) }}
+  {% elif current_user.role == 'teacher' %}
+    {{ metric('My sections', metrics.sections, 'Assigned learning groups', 'fa-chalkboard-user', url_for('sections')) }}
+    {{ metric('My students', metrics.students, 'Enrolled in your sections', 'fa-user-graduate', url_for('students')) }}
+  {% endif %}
+</div>
+
+<div class="content-grid">
+  <section class="panel">
+    {% if current_user.role in ['admin', 'admissions'] %}
+      <div class="panel-head"><div><h2>Recent applications</h2><p>Latest admission activity</p></div><a class="text-link" href="{{ url_for('applications') }}">View all <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></div>
+      {% if recent %}<div class="table-wrap"><table><thead><tr><th>Applicant</th><th>Program</th><th>Status</th><th></th></tr></thead><tbody>
+        {% for item in recent %}<tr><td><strong>{{ item.full_name }}</strong><small>{{ item.reference }}</small></td><td>{{ item.program }}</td><td><span class="pill {{ item.status }}">{{ item.status|replace('_',' ')|title }}</span></td><td><a class="row-link" href="{{ url_for('application_detail', applicant_id=item.id) }}">View <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></td></tr>{% endfor %}
+      </tbody></table></div>{% else %}<div class="empty-state"><p>No applications yet.</p></div>{% endif %}
+    {% elif current_user.role == 'finance' %}
+      <div class="panel-head"><div><h2>Recent charges</h2><p>Latest student account activity</p></div><a class="text-link" href="{{ url_for('finance') }}">View all <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></div>
+      {% if recent_charges %}<div class="table-wrap"><table><thead><tr><th>Student</th><th>Charge</th><th>Amount</th><th></th></tr></thead><tbody>
+        {% for item in recent_charges %}<tr><td><strong>{{ item.student.full_name }}</strong><small>{{ item.student.student_number }}</small></td><td>{{ item.description }}{% if item.voided %}<small>Voided</small>{% endif %}</td><td>₱{{ '{:,.2f}'.format(item.amount) }}</td><td><a class="row-link" href="{{ url_for('student_detail', student_id=item.student_id) }}">View <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></td></tr>{% endfor %}
+      </tbody></table></div>{% else %}<div class="empty-state"><p>No charges yet.</p></div>{% endif %}
+    {% elif current_user.role == 'hr' %}
+      <div class="panel-head"><div><h2>Recent employees</h2><p>Latest faculty and staff records</p></div><a class="text-link" href="{{ url_for('employees') }}">View all <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></div>
+      {% if recent_employees %}<div class="table-wrap"><table><thead><tr><th>Employee</th><th>Department</th><th>Status</th><th></th></tr></thead><tbody>
+        {% for item in recent_employees %}<tr><td><strong>{{ item.full_name }}</strong><small>{{ item.employee_number }}</small></td><td>{{ item.department }}</td><td><span class="pill {{ item.status }}">{{ item.status|replace('_',' ')|title }}</span></td><td><a class="row-link" href="{{ url_for('employee_detail', employee_id=item.id) }}">View <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></td></tr>{% endfor %}
+      </tbody></table></div>{% else %}<div class="empty-state"><p>No employees yet.</p></div>{% endif %}
+    {% else %}
+      <div class="panel-head"><div><h2>{% if current_user.role == 'teacher' %}My sections{% else %}Recent sections{% endif %}</h2><p>Schedules and teaching assignments</p></div><a class="text-link" href="{{ url_for('sections') }}">View all <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></div>
+      {% if recent_sections %}<div class="table-wrap"><table><thead><tr><th>Section</th><th>Subject</th><th>Schedule</th><th></th></tr></thead><tbody>
+        {% for item in recent_sections %}<tr><td><strong>{{ item.code }}</strong><small>{{ item.school_year }} · {{ item.term }}</small></td><td>{{ item.subject.code }} · {{ item.subject.title }}</td><td>{{ item.schedule }}</td><td><a class="row-link" href="{{ url_for('section_detail', section_id=item.id) }}">View <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></td></tr>{% endfor %}
+      </tbody></table></div>{% else %}<div class="empty-state"><p>No sections yet.</p></div>{% endif %}
+    {% endif %}
+  </section>
+  <section class="panel quick-panel">
+    <div class="panel-head"><div><h2>Quick access</h2><p>Continue your daily work</p></div></div>
+    <div class="quick-list">
+      {% if current_user.role in ['admin', 'admissions'] %}{{ quick('Review applications', 'Requirements and decisions', 'fa-clipboard-list', url_for('applications')) }}{% endif %}
+      {% if current_user.role in ['admin', 'academic', 'teacher'] %}{{ quick('Manage sections', 'Roster, attendance, grades', 'fa-chalkboard-user', url_for('sections')) }}{% endif %}
+      {% if current_user.role in ['admin', 'academic', 'teacher', 'finance', 'admissions'] %}{{ quick('Student records', 'Find and review students', 'fa-user-graduate', url_for('students')) }}{% endif %}
+      {% if current_user.role in ['admin', 'finance'] %}{{ quick('Student accounts', 'Charges and payments', 'fa-wallet', url_for('finance')) }}{% endif %}
+      {% if current_user.role in ['admin', 'hr', 'academic'] %}{{ quick('People records', 'Faculty and staff', 'fa-users', url_for('employees')) }}{% endif %}
+      {% if current_user.role == 'admin' %}{{ quick('Management reports', 'Exports and activity', 'fa-chart-column', url_for('reports')) }}{% endif %}
+    </div>
+  </section>
+</div>
+{% endblock %}
